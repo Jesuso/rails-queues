@@ -61,6 +61,11 @@ Rails.application.configure do
   # Use a real queuing backend for Active Job (and separate queues per environment).
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "queues_production"
+  
+  # Overwrites `config/application.rb`, you can test this by running:
+  # $ RAILS_ENV=production rails console
+  # Which yields: "uninitialized constant ActiveJob::QueueAdapters::FooQueuezAdapter (NameError)"
+  config.active_job.queue_adapter = :foo_queuez
 
   config.action_mailer.perform_caching = false
 
