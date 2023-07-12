@@ -19,9 +19,10 @@ services:
 
   sidekiq-worker:
     build: .
-    command: bundle exec sidekiq
+    command: bundle exec sidekiq -C config/sidekiq.yml
     environment:
       - REDIS_URL=redis://redis:6379/0
+      - SIDEKIQ_CONCURRENCY=10
     volumes:
       - .:/app
     depends_on:
@@ -32,6 +33,7 @@ services:
     command: bundle exec rake sneakers:run
     environment:
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - SNEAKERS_CONCURRENCY=10
     volumes:
       - .:/app
     depends_on:
@@ -42,6 +44,7 @@ services:
     command: bundle exec karafka server
     environment:
       - KAFKA_URL=kafka:9092
+      - KARAFKA_CONCURRENCY=10
     volumes:
       - .:/app
     depends_on:

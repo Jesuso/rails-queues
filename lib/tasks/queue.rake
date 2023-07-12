@@ -1,35 +1,40 @@
-SLEEP = ENV['SLEEP'] ? ENV['SLEEP'].to_f : nil
-SLEEP_RAND = ENV.fetch('SLEEP_RAND', 0).to_f
-FIB = ENV['FIB'] ? ENV['FIB'].to_i : nil
-FIB_RAND = ENV.fetch('FIB_RAND', 5).to_i
+def queue_multi(args)
+  # MyGenericJob.perform_later(args)
+  # MyAsyncJob.perform_later(args)
+  # MySidekiqJob.perform_async(args)
+  # MySidekiqActiveJob.perform_later(args)
+  MySneakersJob.perform_later(args)
+  # MyKarafkaJob.perform_later(args)
+end
 
 namespace :queue do
   desc 'Queue up load test jobs'
 
   task fib: :environment do
-    puts "Current queue_adapter: #{Rails.application.config.active_job.queue_adapter}"
-    puts "Current queue_adapter_immediate: #{Rails.application.config.active_job.queue_adapter_immediate}"
     job_count = ENV.fetch('JOB_COUNT', 100)&.to_i
+    fib = ENV.fetch('FIB', 30).to_i
+    fib_randomicity = ENV.fetch('FIB_RAND', 5).to_i
 
     job_count.times do |i|
-      
+      args = {'uuid' => SecureRandom.uuid, 'fib' => rand(fib..(fib + fib_randomicity))}
       puts "Enqueuing job #{i} with args: #{args.inspect}..."
-      
-      # MyAsyncJob.perform_later(args)
-      # MySidekiqJob.perform_async(args)
-      MySidekiqActiveJob.perform_later(args)
-      MySneakersJob.perform_later(args)
+      queue_multi(args)
     end
 
     puts "Enqueued #{job_count} jobs for each worker"
   end
-end
 
-def args
-  args = {}
-  args['sleep'] = SLEEP if SLEEP
-  args['sleep'] = rand(SLEEP..(SLEEP + SLEEP_RAND)) if SLEEP
-  args['fib'] = rand(FIB..(FIB + FIB_RAND)) if FIB
+  task sleep: :environment do
+    job_count = ENV.fetch('JOB_COUNT', 100)&.to_i
+    sleep_ = ENV.fetch('SLEEP', 2).to_f
+    sleep_rand = ENV.fetch('SLEEP_RAND', 1).to_f
 
-  args
+    job_count.times do |i|
+      args = {'uuid' => SecureRandom.uuid, 'sleep' => rand(sleep_..(sleep_ + sleep_rand))}
+      puts "Enqueuing job #{i} with args: #{args.inspect}..."
+      queue_multi(args)
+    end
+
+    puts "Enqueued #{job_count} jobs for each worker"
+  end
 end
