@@ -1,8 +1,8 @@
-class MyGenericJob < ApplicationJob
-
+class MySidekiqActiveJob < ApplicationJob
+  self.queue_adapter = :sidekiq
 
   def perform(args)
-    puts "Doing something with #{args.inspect} in MyGenericJob"
+    puts "Doing something with #{args.inspect} in MySidekiqActiveJob"
     sleep args['sleep'] if args['sleep'].present?
     puts "Fibonacci(#{args['fib']}) = #{fibonacci(args['fib'])}" if args['fib'].present?
   end
